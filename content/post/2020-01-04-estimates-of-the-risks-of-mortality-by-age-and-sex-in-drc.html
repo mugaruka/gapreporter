@@ -1,0 +1,67 @@
+---
+title: Estimates of the risks of mortality by age and sex in DRC
+author: Pacifique Mugaruka Ntabaza
+date: '2020-01-04'
+slug: estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc
+categories:
+  - civil registration and vital statistics
+tags: []
+---
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Civil registration and vital statistics (CRVS) systems are essential for a variety of purposes, including for understanding the growth dynamics of the population concerned; assessment of the human aspects of socioeconomic development; and measurement, for insurance and social security purposes, of the risks of dying for males and females at specific ages.</p>
+<p>Following the announcement, in March 2019, by the insurance market regulatory institution in the Democratic Republic of Congo (DRC), of the granting of accreditations and authorizations to a first wave of private companies, there will be increasing demand for this kind of data. Life insurance companies will need mortality tables to help determine premiums and to make sure the insurance company remains solvent. Information on deaths, classified by various characteristics of the deceased, especially age and sex, is necessary for calculating life tables and estimating the probability of dying at various ages.</p>
+<p>There has been substantial progress in strengthening the CRVS system, particularly in the deployment of related legal instruments with a well established <a href="https://data.unicef.org/crvs/democratic-republic-congo/">legal framework</a>:</p>
+<ul>
+<li><p>Birth registration: <a href="https://data.unicef.org/wp-content/uploads/2017/12/drc_family_1987_fr.pdf">Law No. 87-010 (1 August 1987)</a>, as amended by <a href="https://data.unicef.org/wp-content/uploads/2017/12/COD-102954.pdf">Law No. 16/008 (15 July 2016)</a> on the Family Code.</p></li>
+<li><p>Marriage Registration: <a href="https://data.unicef.org/wp-content/uploads/2017/12/drc_family_1987_fr.pdf">Law No. 87-010 (1 August 1987)</a>, as amended by the <a href="https://data.unicef.org/wp-content/uploads/2017/12/COD-102954.pdf">Law No. 16/008 (15 July 2016)</a> on the Family Code.</p></li>
+<li><p>Death Registration: <a href="https://data.unicef.org/wp-content/uploads/2017/12/drc_family_1987_fr.pdf">Law No. 87-010 (1 August 1987)</a>, as amended by <a href="https://data.unicef.org/wp-content/uploads/2017/12/COD-102954.pdf">Law No. 16/008 (15 July 2016)</a> on the Family Code.</p></li>
+</ul>
+<p>However, the onus is entirely on the family to register a birth or death. Even assuming they are aware of this obligation, it often requires substantial effort and expense and can take several weeks. This in part explains why so many births and deaths go unrecorded, not to mention the lack of functioning vital registration systems, or incompleteness of coverage or errors in reporting.</p>
+<p><a href="https://unstats.un.org/unsd/demographic-social/crvs/index.cshtml">Data</a> compiled by the <a href="https://unstats.un.org/home/about/">United Nations Statistics Division</a> indicates that DRC has a coverage of live births registration of about <a href="https://unstats.un.org/unsd/demographic-social/crvs/documents/Website_final_coverage.xls">25%</a>. As for mortality data, it is almost non-existent. As the map below shows, DRC is among the countries lacking accurate and timely documentation of births and deaths (map available at: <a href="http://www.pophealthmetrics.com/content/12/1/14/abstract" class="uri">http://www.pophealthmetrics.com/content/12/1/14/abstract</a>):</p>
+<p><img src="/post/2020-01-04-estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc_files/VSPI-2.png" /></p>
+<p>This article uses the R scripts found in the Technical <a href="https://www.un.org/en/development/desa/population/publications/pdf/technical/TP2019-2.pdf">Paper No. 2019/2</a> of the <a href="https://www.un.org/en/development/desa/population/about/index.asp">Population Division (United Nations Department of Economic and Social Affairs)</a> to estimate the adult mortality in DRC. The R scripts are an implementation of Croft’s recommendations for the direct estimation of adult and maternal mortality using the microdata of sibling survival histories collected in the Demographic and Health Survey (DHS).</p>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<p>The primary motivation for collecting the sibling history (that is brothers and sisters) in the DHS is to estimate maternal mortality, but it can be used to produce estimates of adult mortality more generally. In the DHS, sibling history data are collected in the sibling survival module (commonly referred to as the adult and maternal mortality module) that is part of the Woman’s Questionnaire.</p>
+<p>The sibling histories collect information for each birth or pregnancy that the respondent’s mother ever had (based on samples of individuals aged 15-49), and usually include at a minimum:</p>
+<ul>
+<li>Sex of the sibling;</li>
+<li>Survival status of the sibling – alive or dead;</li>
+<li>Age of sibling for surviving siblings;</li>
+<li>Age at death for siblings who died;</li>
+<li>Years since death or year of death for siblings who died.</li>
+</ul>
+<p>Presuming that the siblings of respondents currently living are representative of the adult population alive during the recent past, the information collected on the sibling histories can be used to estimate the deaths that occurred relative to the person-years of exposure to mortality in each age group, and thus to estimate the age-specific mortality risks faced by the reference population.</p>
+<p>The age-specific death rates (based on person-years of exposure during each age interval for the
+given time period) are calculated based on survivors to the beginning of each age interval during the given time period. The age-specific death rates are then converted to death probabilities. The age groups used in the mortality estimates and in the death probabilities are ages 15-49.</p>
+<p>The primary data source for this article is the <a href="https://dhsprogram.com/data/dataset/Congo-Democratic-Republic_Standard-DHS_2013.cfm?flag=0">DRC-DHS, 2013-2014</a>.</p>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<div id="mortality-rates-by-age-group-and-sex-in-drc" class="section level3">
+<h3>Mortality rates by age group and sex in DRC (‰)</h3>
+<p><img src="/post/2020-01-04-estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="probabilities-of-dying-by-age-group-and-sex-in-drc" class="section level3">
+<h3>Probabilities of dying by age group and sex in DRC (%)</h3>
+<p>As the graph below shows, apart from the full range of 15-49,</p>
+<ul>
+<li><p><strong>for men</strong>, the age group with the highest probability of dying is 45-49 (5%) while the age group with the smallest risk is 15-19 (1.8%); and</p></li>
+<li><p><strong>for women</strong>, the age group with the highest probability of dying is 35-39 (3.9%) while the age group with the smallest risk is 15-19 (2%);</p></li>
+<li><p><strong>considering the full range of 15-49</strong>, men are more likely to die than women (19.3% for men and 18.8% for women).</p></li>
+</ul>
+<p><img src="/post/2020-01-04-estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="conclusion" class="section level3">
+<h3>Conclusion</h3>
+<p>Even if the mortality rate of the 15-49 is already very high, it remains below what it would be if the analysis included the under-five mortality rates (U5MR). Indeed, the U5MR in DRC is among the highest in the world. The U5MR was <a href="https://bmcpublichealth.biomedcentral.com/articles/10.1186/1471-2458-14-266">159 per 1,000 live births (un-weighted data)</a> in 2007 and <a href="https://data.unicef.org/country/cod/">91.1 per 1,000 live births</a> in 2018.</p>
+<p>The mortality estimates produced in this article provide valuable information on the risks of dying between the ages of 15 and 49 years in DRC, where reliable vital statistics are not available.</p>
+<p>It should be noted that the data on which these analyzes are based is already over six years old and the current situation may not be the same. However, everything suggests that the situation has worsened since then, at least in certain areas of the country, where the humanitarian crisis is persistent and remains among the world’s deadliest in recent decades.</p>
+<p>The next article will aim to examine province-level geographic variation in adult mortality.</p>
+</div>
+</div>

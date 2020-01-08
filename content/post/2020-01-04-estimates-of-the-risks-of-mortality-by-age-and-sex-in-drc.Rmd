@@ -1,0 +1,164 @@
+---
+title: Estimates of the risks of mortality by age and sex in DRC
+author: Pacifique Mugaruka Ntabaza
+date: '2020-01-04'
+slug: estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc
+categories:
+  - civil registration and vital statistics
+tags: []
+---
+
+## Introduction
+
+Civil registration and vital statistics (CRVS) systems are essential for a variety of purposes, including for understanding the growth dynamics of the population concerned; assessment of the human aspects of socioeconomic development; and measurement, for insurance and social security purposes, of the risks of dying for males and females at specific ages.
+
+Following the announcement, in March 2019, by the insurance market regulatory institution in the Democratic Republic of Congo (DRC), of the granting of accreditations and authorizations to a first wave of private companies, there will be increasing demand for this kind of data. Life insurance companies will need mortality tables to help determine premiums and to make sure the insurance company remains solvent. Information on deaths, classified by various characteristics of the deceased, especially age and sex, is necessary for calculating life tables and estimating the probability of dying at various ages.
+
+There has been substantial progress in strengthening the CRVS system, particularly in the deployment of related legal instruments with a well established [legal framework](https://data.unicef.org/crvs/democratic-republic-congo/):
+
+- Birth registration: [Law No. 87-010 (1 August 1987)](https://data.unicef.org/wp-content/uploads/2017/12/drc_family_1987_fr.pdf), as amended by [Law No. 16/008 (15 July 2016)](https://data.unicef.org/wp-content/uploads/2017/12/COD-102954.pdf) on the Family Code.
+
+- Marriage Registration: [Law No. 87-010 (1 August 1987)](https://data.unicef.org/wp-content/uploads/2017/12/drc_family_1987_fr.pdf), as amended by the [Law No. 16/008 (15 July 2016)](https://data.unicef.org/wp-content/uploads/2017/12/COD-102954.pdf) on the Family Code.
+
+- Death Registration: [Law No. 87-010 (1 August 1987)](https://data.unicef.org/wp-content/uploads/2017/12/drc_family_1987_fr.pdf), as amended by [Law No. 16/008 (15 July 2016)](https://data.unicef.org/wp-content/uploads/2017/12/COD-102954.pdf) on the Family Code.
+
+However, the onus is entirely on the family to register a birth or death. Even assuming they are aware of this obligation, it often requires substantial effort and expense and can take several weeks. This in part explains why so many births and deaths go unrecorded, not to mention the lack of functioning vital registration systems, or incompleteness of coverage or errors in reporting.
+
+[Data](https://unstats.un.org/unsd/demographic-social/crvs/index.cshtml) compiled by the [United Nations Statistics Division](https://unstats.un.org/home/about/) indicates that  DRC has a coverage of live births registration of about [25%](https://unstats.un.org/unsd/demographic-social/crvs/documents/Website_final_coverage.xls). As for mortality data, it is almost non-existent. As the map below shows, DRC is among the countries lacking accurate and timely documentation of births and deaths (map available at: http://www.pophealthmetrics.com/content/12/1/14/abstract):
+
+![](/post/2020-01-04-estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc_files/VSPI-2.png)
+
+This article uses the R scripts found in the Technical [Paper No. 2019/2](https://www.un.org/en/development/desa/population/publications/pdf/technical/TP2019-2.pdf) of the [Population Division (United Nations Department of Economic and Social Affairs)](https://www.un.org/en/development/desa/population/about/index.asp) to estimate the adult mortality in DRC. The R scripts are an implementation of Croft’s recommendations for the direct estimation of adult and maternal mortality using the microdata of sibling survival histories collected in the Demographic and Health Survey (DHS).
+
+## Methods
+
+The primary motivation for collecting the sibling history (that is brothers and sisters) in the DHS is to estimate maternal mortality, but it can be used to produce estimates of adult mortality more generally. In the DHS, sibling history data are collected in the sibling survival module (commonly referred to as the adult and maternal mortality module) that is part of the Woman’s Questionnaire.
+
+The sibling histories collect information for each birth or pregnancy that the respondent’s mother ever had (based on samples of individuals aged 15-49), and usually include at a minimum:
+
+- Sex of the sibling;
+- Survival status of the sibling – alive or dead;
+- Age of sibling for surviving siblings;
+- Age at death for siblings who died;
+- Years since death or year of death for siblings who died.
+
+Presuming that the siblings of respondents currently living are representative of the adult population alive during the recent past, the information collected on the sibling histories can be used to estimate the deaths that occurred relative to the person-years of exposure to mortality in each age group, and thus to estimate the age-specific mortality risks faced by the reference population.
+
+The age-specific death rates (based on person-years of exposure during each age interval for the
+given time period) are calculated based on survivors to the beginning of each age interval during the given time period. The age-specific death rates are then converted to death probabilities. The age groups used in the mortality estimates and in the death probabilities are ages 15-49.
+
+The primary data source for this article is the [DRC-DHS, 2013-2014](https://dhsprogram.com/data/dataset/Congo-Democratic-Republic_Standard-DHS_2013.cfm?flag=0).
+
+## Results
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# loading the required packages
+library(foreign) # for reading Stata files into the R environment
+library(dplyr) # for the tidyverse pipe operator and multiple functions called to manipulate the data
+library(tidyr) # for the spread() and gather() functions used to transform the data from wide to long
+library(knitr) # for creating tables
+library(ggplot2) # for data viz
+library(ggthemes) # for extra ggplot2 themes
+
+#  wrangling the data into the form required for analysis
+source("FUNCTION.PrepForSiblingsDHS.r")
+df <- PrepForSiblingsDHS(ind.recode="CDIR61FL.DTA", SurveyRefDate = "12/31/2013")
+
+#  performing the mortality estimation according to a set of options
+source("FUNCTION.SiblingSurvival.r")
+out <- SiblingSurvival(PreppedSibData = df,
+                       include.Respondent = FALSE,
+                       impute.Sex = FALSE,
+                       PregRelCode = c(2,3,6),
+                       recall.back = 7,
+                       recall.end = 0,
+                       stderror = FALSE,
+                       age.standardize = TRUE,
+                       pr.recode = "CDPR61FL.DTA")
+
+out <- out %>%
+  tidyr::pivot_wider(names_from = sex, values_from = Estimate) %>%
+  dplyr::mutate(Age = ifelse(Age == 15 & AgeInt == 35, 1535, Age)) %>%
+  dplyr::mutate(Age = recode(Age,
+                             `15` = "15-19",
+                             `20` = "20-24",
+                             `25` = "25-29",
+                             `30` = "30-34",
+                             `35` = "35-39",
+                             `40` = "40-44",
+                             `45` = "45-49",
+                             `1535` = "15-49")) %>%
+  dplyr::rename(`Age Group` = Age, `Male` = `1`, `Female` = `2`)
+
+# the mortality rate 
+mx <- out %>% dplyr::filter(Indicator == "mx") %>%
+  dplyr::select(-c(AgeInt, Indicator)) %>%
+  dplyr::mutate(Male = round(Male * 1000, 1),  Female = round(Female * 1000, 1))
+
+# the probability of dying 
+qx <- out %>% dplyr::filter(Indicator == "qx") %>%
+  dplyr::select(-c(AgeInt, Indicator)) %>%
+  dplyr::mutate(Male = round(Male * 100, 1),  Female = round(Female * 100, 1))
+```
+
+### Mortality rates by age group and sex in DRC (‰)
+
+```{r, echo = FALSE}
+plot_mx <- mx %>%
+  dplyr::mutate(`Age Group` = factor(`Age Group`, `Age Group`)) %>%
+  pivot_longer(-`Age Group`, names_to = "Sex", values_to = "Probability") %>% 
+  ggplot(aes(x = `Age Group`, y = Probability, fill = Sex)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = paste0(Probability, "‰"), vjust = 1),
+            stat = "identity",
+            position = position_dodge(0.9),
+            color = "white",
+            size = 3) +
+  labs(title = "Age-specific and sex-specific adult mortality rates in DRC",
+       subtitle = "Men and women aged 15–49",
+       caption = "© 2020 Pacifique Mugaruka Ntabaza | Data source: DRC-DHS, 2013-2014") +
+  theme_economist() +
+  scale_fill_economist()
+
+print(plot_mx)
+```
+
+### Probabilities of dying by age group and sex in DRC (%)
+
+As the graph below shows, apart from the full range of 15-49,
+
+* **for men**, the age group with the highest probability of dying is `r qx$"Age Group"[which.max(qx$Male[1:(nrow(qx)-1)])]` (`r paste0(qx$Male[which.max(qx$Male[1:(nrow(qx)-1)])], "%")`) while the age group with the smallest risk is `r qx$"Age Group"[which.min(qx$Male[1:(nrow(qx)-1)])]` (`r paste0(qx$Male[which.min(qx$Male[1:(nrow(qx)-1)])], "%")`); and
+
+* **for women**, the age group with the highest probability of dying is `r qx$"Age Group"[which.max(qx$Female[1:(nrow(qx)-1)])]` (`r paste0(qx$Female[which.max(qx$Female[1:(nrow(qx)-1)])], "%")`) while the age group with the smallest risk is `r qx$"Age Group"[which.min(qx$Female[1:(nrow(qx)-1)])]` (`r paste0(qx$Female[which.min(qx$Female[1:(nrow(qx)-1)])], "%")`);
+
+* **considering the full range of 15-49**, men are more likely to die than women (`r paste0(qx$Male[which.max(qx$Male)], "%")` for men and `r paste0(qx$Female[which.max(qx$Female)], "%")` for women).
+
+```{r, echo = FALSE}
+plot_qx <- qx %>%
+  dplyr::mutate(`Age Group` = factor(`Age Group`, `Age Group`)) %>%
+  pivot_longer(-`Age Group`, names_to = "Sex", values_to = "Probability") %>% 
+  ggplot(aes(x = `Age Group`, y = Probability, fill = Sex)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = paste0(Probability, "%"), vjust = 1),
+            stat = "identity",
+            position = position_dodge(0.9),
+            color = "white",
+            size = 3) +
+  labs(title = "Age-specific and sex-specific adult mortality risk in DRC",
+       subtitle = "Men and women aged 15–49",
+       caption = "© 2020 Pacifique Mugaruka Ntabaza | Data source: DRC-DHS, 2013-2014") +
+  theme_economist() +
+  scale_fill_economist()
+
+print(plot_qx)
+```
+
+### Conclusion
+
+Even if the mortality rate of the 15-49 is already very high, it remains below what it would be if the analysis included the under-five mortality rates (U5MR). Indeed, the U5MR in DRC is among the highest in the world. The U5MR was [159 per 1,000 live births (un-weighted data)](https://bmcpublichealth.biomedcentral.com/articles/10.1186/1471-2458-14-266) in 2007 and [91.1 per 1,000 live births](https://data.unicef.org/country/cod/) in 2018.
+
+The mortality estimates produced in this article provide valuable information on the risks of dying between the ages of 15 and 49 years in DRC, where reliable vital statistics are not available.
+
+It should be noted that the data on which these analyzes are based is already over six years old and the current situation may not be the same. However, everything suggests that the situation has worsened since then, at least in certain areas of the country, where the humanitarian crisis is persistent and remains among the world's deadliest in recent decades.
+
+The next article will aim to examine province-level geographic variation in adult mortality.

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Makini Analytics</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on Makini Analytics</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 04 Jan 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Estimates of the risks of mortality by age and sex in DRC</title>
+      <link>/2020/01/04/estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc/</link>
+      <pubDate>Sat, 04 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/01/04/estimates-of-the-risks-of-mortality-by-age-and-sex-in-drc/</guid>
+      <description>IntroductionCivil registration and vital statistics (CRVS) systems are essential for a variety of purposes, including for understanding the growth dynamics of the population concerned; assessment of the human aspects of socioeconomic development; and measurement, for insurance and social security purposes, of the risks of dying for males and females at specific ages.
+Following the announcement, in March 2019, by the insurance market regulatory institution in the Democratic Republic of Congo (DRC), of the granting of accreditations and authorizations to a first wave of private companies, there will be increasing demand for this kind of data.</description>
+    </item>
+    
+  </channel>
+</rss>
